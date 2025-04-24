@@ -1,0 +1,103 @@
+.my-3 {
+  font-size: 45px;
+  font-style: normal;
+  color: #5d4f92;
+}
+.card .instruction {
+  font-family: Impact, Haettenschweiler, "Arial Narrow Bold", sans-serif;
+  padding-left: 20px;
+  color: #747779;
+  background-color: #ffffff;
+}
+
+.welcome-section {
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.welcome-container {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.welcome-title {
+  text-align: center;
+  font-size: 3rem;
+  font-weight: 300;
+  margin-bottom: 2rem;
+}
+
+.welcome-title .highlight {
+  color: #5d4f92;
+  font-weight: 500;
+  display: block;
+}
+
+.content-section {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.upcoming-events, .instructions {
+  background: white;
+  border-radius: 8px;
+  padding: 2rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.upcoming-events h2, .instructions h2 {
+  color: #333;
+  margin-bottom: 1.5rem;
+  font-size: 1.5rem;
+}
+
+.no-events {
+  text-align: center;
+  color: #666;
+  padding: 1rem;
+}
+
+.instructions ol {
+  padding-left: 1.5rem;
+  margin: 0;
+}
+
+.instructions li {
+  color: #666;
+  margin-bottom: 1rem;
+  line-height: 1.5;
+}
+
+/* Table styles */
+.table {
+  margin-bottom: 0;
+}
+
+.table th {
+  background-color: #f8f9fa;
+  color: #333;
+  font-weight: 600;
+}
+
+.table td {
+  color: #666;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .welcome-title {
+    font-size: 2rem;
+  }
+
+  .welcome-section {
+    padding: 1rem;
+  }
+
+  .upcoming-events, .instructions {
+    padding: 1.5rem;
+  }
+}
+
