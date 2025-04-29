@@ -27,8 +27,14 @@ import Welcome from "../Welcome/Welcome.jsx";
 import { LuUser } from "react-icons/lu";
 import { RiHome2Line } from "react-icons/ri";
 import HallDetails from "../HallDetails/HallDetails";
+import {
+  MdAudiotrack,
+  MdEventSeat,
+  MdBusinessCenter,
+  MdComputer,
+} from "react-icons/md";
 
-const LOCAL_STORAGE_KEY = "loginuser";
+const LOCAL_STORAGE_KEY = "loginUser";
 
 function About() {
   const navigate = useNavigate();
@@ -153,7 +159,7 @@ function About() {
             style={{
               fontSize: "2rem",
               cursor: "pointer",
-              color: "#000"
+              color: "#000",
             }}
             onClick={toggleNavbar}
           />
@@ -178,7 +184,10 @@ function About() {
               }}
             >
               <LuUser style={{ marginLeft: "5px" }} />
-              <span className="fw-bold" style={{ textTransform: "uppercase", marginLeft: "5px" }}>
+              <span
+                className="fw-bold"
+                style={{ textTransform: "uppercase", marginLeft: "5px" }}
+              >
                 {loginuser}
               </span>
             </Dropdown.Toggle>
@@ -258,37 +267,58 @@ function About() {
                 <SlCalender />
                 <span className="nav_name">Calendar</span>
               </Link>
-              <Link
-                to={"/cv-raman"}
-                className="nav_link"
-                onClick={() => setActiveLink(3)}
-              >
-                <RiHome2Line />
-                <span className="nav_name">CV Raman Auditorium</span>
-              </Link>
+              {showNav ? (
+                <p className="at-center desc-nav">---Available Halls---</p>
+              ) : (
+                <p className="desc-nav">---</p>
+              )}
               <Link
                 to={"/multipurpose"}
                 className="nav_link"
-                onClick={() => setActiveLink(4)}
+                onClick={() => setActiveLink(3)}
               >
-                <RiHome2Line />
+                <MdEventSeat />
                 <span className="nav_name">Multipurpose Hall</span>
               </Link>
               <Link
                 to={"/senate"}
                 className="nav_link"
+                onClick={() => setActiveLink(4)}
+              >
+                <MdBusinessCenter />
+                <span className="nav_name">Senate Hall</span>
+              </Link>
+              <Link
+                to={"/mini-auditorium"}
+                className="nav_link"
                 onClick={() => setActiveLink(5)}
               >
-                <RiHome2Line />
-                <span className="nav_name">Senate Hall</span>
+                <MdAudiotrack />
+                <span className="nav_name">Mini Auditorium</span>
+              </Link>
+              <Link
+                to={"/ciku"}
+                className="nav_link"
+                onClick={() => setActiveLink(6)}
+              >
+                <MdBusinessCenter />
+                <span className="nav_name">CIKU Hall</span>
               </Link>
               <Link
                 to={"/ntic"}
                 className="nav_link"
-                onClick={() => setActiveLink(6)}
+                onClick={() => setActiveLink(7)}
               >
-                <RiHome2Line />
-                <span className="nav_name">NTIC Hall</span>
+                <MdComputer />
+                <span className="nav_name">NTIC</span>
+              </Link>
+              <Link
+                to={"/cv-raman"}
+                className="nav_link"
+                onClick={() => setActiveLink(8)}
+              >
+                <MdAudiotrack />
+                <span className="nav_name">CV Raman</span>
               </Link>
             </div>
           </div>
@@ -310,17 +340,23 @@ function About() {
         <Routes>
           <Route
             path="/"
-            element={<Welcome events={slots.filter(slot => slot.status === "approved")} />}
+            element={
+              <Welcome
+                events={slots.filter((slot) => slot.status === "approved")}
+              />
+            }
           />
           <Route
             exact
             path="/calender"
             element={<CalendarInterface loginuser={loginuser} />}
           />
-          <Route path="/cv-raman" element={<HallDetails />} />
           <Route path="/multipurpose" element={<HallDetails />} />
           <Route path="/senate" element={<HallDetails />} />
+          <Route path="/mini-auditorium" element={<HallDetails />} />
+          <Route path="/ciku" element={<HallDetails />} />
           <Route path="/ntic" element={<HallDetails />} />
+          <Route path="/cv-raman" element={<HallDetails />} />
           <Route
             path="/admin"
             element={

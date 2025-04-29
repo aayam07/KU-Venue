@@ -1,18 +1,21 @@
-import React, { useEffect, useState } from "react"
-import { Button, Table } from "react-bootstrap"
-import { toast } from "react-toastify"
-import "react-toastify/dist/ReactToastify.css"
-import moment from "moment"
-import slotService from "../../Services/service.js"
-import BookingPDF from "./BookingPDF"
-import { generatePDF } from "../../utils/pdfGenerator"
-import { FaDownload } from "react-icons/fa"
+import React, { useEffect, useState } from "react";
+import { Button, Table } from "react-bootstrap";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import moment from "moment";
+import slotService from "../../Services/service.js";
+import BookingPDF from "./BookingPDF";
+import { generatePDF } from "../../utils/pdfGenerator";
+import { FaDownload } from "react-icons/fa";
 
 const ForumAdmin = ({ retrieveSlots, slots, loginuser }) => {
-  const forumSlots = loginuser === "admin" ? slots : slots.filter(slot => slot.username === loginuser)
-  const [showModal, setShowModal] = useState(false)
-  const [selectedSlot, setSelectedSlot] = useState(null)
-  const [isGeneratingPDF, setIsGeneratingPDF] = useState(false)
+  const forumSlots =
+    loginuser === "admin"
+      ? slots
+      : slots.filter((slot) => slot.username === loginuser);
+  const [showModal, setShowModal] = useState(false);
+  const [selectedSlot, setSelectedSlot] = useState(null);
+  const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
   const [eventInfo, setEventInfo] = useState({
     eventTitle: "",
     venue: "",
@@ -20,103 +23,113 @@ const ForumAdmin = ({ retrieveSlots, slots, loginuser }) => {
     endTime: "",
     responsiblePerson: "",
     contactNumber: "",
-  })
-  const [isSubmitting, setIsSubmitting] = useState(false)
+    canteenRemarks: "",
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    retrieveSlots()
-  }, [retrieveSlots])
+    retrieveSlots();
+  }, [retrieveSlots]);
 
   const handleRowClick = (slot) => {
     if (slot.status !== "pending") {
-      return
-    }
-    
-    if (loginuser !== "admin" && slot.username !== loginuser) {
-      return
+      return;
     }
 
-    setSelectedSlot(slot)
+    if (loginuser !== "admin" && slot.username !== loginuser) {
+      return;
+    }
+
+    setSelectedSlot(slot);
     setEventInfo({
       eventTitle: slot.title,
       venue: slot.venue,
       startTime: moment(slot.start).format("HH:mm"),
       endTime: moment(slot.end).format("HH:mm"),
-      responsiblePerson: slot.responsiblePerson || '',
-      contactNumber: slot.contactNumber || ''
-    })
-    setShowModal(true)
-  }
+      responsiblePerson: slot.responsiblePerson || "",
+      contactNumber: slot.contactNumber || "",
+      canteenRemarks: slot.canteenRemarks || "",
+    });
+    setShowModal(true);
+  };
 
   const handleDownloadPDF = async (e, slot) => {
-    e.stopPropagation()
-    if (isGeneratingPDF) return
+    e.stopPropagation();
+    if (isGeneratingPDF) return;
 
-    setIsGeneratingPDF(true)
+    setIsGeneratingPDF(true);
     try {
-      await generatePDF(<BookingPDF slot={slot} />, slot)
-      toast.success("PDF downloaded successfully!")
+      await generatePDF(<BookingPDF slot={slot} />, slot);
+      toast.success("PDF downloaded successfully!");
     } catch (error) {
-      console.error("Error generating PDF:", error)
-      toast.error("Error generating PDF. Please try again.")
+      console.error("Error generating PDF:", error);
+      toast.error("Error generating PDF. Please try again.");
     } finally {
-      setIsGeneratingPDF(false)
+      setIsGeneratingPDF(false);
     }
-  }
+  };
 
   const handleDelete = async (e, slot) => {
-    e.stopPropagation()
-    
+    e.stopPropagation();
+
     if (slot.status === "approved") {
-      toast.error("Approved events cannot be deleted")
-      return
-    }
-    
-    if (loginuser !== "admin" && slot.username !== loginuser) {
-      toast.error("You don't have permission to delete this event")
-      return
+      toast.error("Approved events cannot be deleted");
+      return;
     }
 
-    const confirmation = window.confirm("Are you sure you want to delete this event?")
+    if (loginuser !== "admin" && slot.username !== loginuser) {
+      toast.error("You don't have permission to delete this event");
+      return;
+    }
+
+    const confirmation = window.confirm(
+      "Are you sure you want to delete this event?"
+    );
     if (!confirmation) {
-      return
+      return;
     }
 
     try {
-      await slotService.deleteSlot(slot._id)
-      toast.success("Event deleted successfully!")
-      retrieveSlots()
+      await slotService.deleteSlot(slot._id);
+      toast.success("Event deleted successfully!");
+      retrieveSlots();
     } catch (error) {
-      console.error(error)
-      toast.error("Error deleting event. Please try again.")
+      console.error(error);
+      toast.error("Error deleting event. Please try again.");
     }
-  }
+  };
 
   const saveEvent = async () => {
     if (isSubmitting) {
-      return
+      return;
     }
 
     // Check if all required fields are filled
-    if (!eventInfo.eventTitle || !eventInfo.venue || !eventInfo.startTime || 
-        !eventInfo.endTime || !eventInfo.responsiblePerson || !eventInfo.contactNumber) {
-      toast.error("Please fill in all fields")
-      return
+    if (
+      !eventInfo.eventTitle ||
+      !eventInfo.venue ||
+      !eventInfo.startTime ||
+      !eventInfo.endTime ||
+      !eventInfo.responsiblePerson ||
+      !eventInfo.contactNumber
+    ) {
+      toast.error("Please fill in all required fields");
+      return;
     }
 
     // Validate phone number length
     if (eventInfo.contactNumber.length !== 10) {
-      toast.error("Contact number must be 10 digits long")
-      return
+      toast.error("Contact number must be 10 digits long");
+      return;
     }
 
     // Validate phone number contains only digits
     if (!/^\d+$/.test(eventInfo.contactNumber)) {
-      toast.error("Contact number must contain only digits")
-      return
+      toast.error("Contact number must contain only digits");
+      return;
     }
 
-    setIsSubmitting(true)
+    setIsSubmitting(true);
 
     try {
       const startDateTime = moment(selectedSlot.start)
@@ -124,32 +137,19 @@ const ForumAdmin = ({ retrieveSlots, slots, loginuser }) => {
           hour: parseInt(eventInfo.startTime.split(":")[0]),
           minute: parseInt(eventInfo.startTime.split(":")[1]),
         })
-        .toDate()
+        .toDate();
       const endDateTime = moment(selectedSlot.start)
         .set({
           hour: parseInt(eventInfo.endTime.split(":")[0]),
           minute: parseInt(eventInfo.endTime.split(":")[1]),
         })
-        .toDate()
+        .toDate();
 
       // Validate that end time is after start time
       if (endDateTime <= startDateTime) {
-        toast.error("End time must be after start time")
-        setIsSubmitting(false)
-        return
-      }
-
-      // First update the slot details
-      const updatedEvent = {
-        _id: selectedSlot._id,
-        username: selectedSlot.username,
-        title: eventInfo.eventTitle,
-        venue: eventInfo.venue,
-        start: startDateTime,
-        end: endDateTime,
-        responsiblePerson: eventInfo.responsiblePerson,
-        contactNumber: eventInfo.contactNumber,
-        status: "pending"
+        toast.error("End time must be after start time");
+        setIsSubmitting(false);
+        return;
       }
 
       // Create a new slot with updated information
@@ -160,15 +160,16 @@ const ForumAdmin = ({ retrieveSlots, slots, loginuser }) => {
         startDate: startDateTime,
         endDate: endDateTime,
         responsiblePerson: eventInfo.responsiblePerson,
-        contactNumber: eventInfo.contactNumber
-      })
+        contactNumber: eventInfo.contactNumber,
+        canteenRemarks: eventInfo.canteenRemarks,
+      });
 
       // Delete the old slot
-      await slotService.deleteSlot(selectedSlot._id)
-      
-      toast.success("Event updated successfully!")
-      retrieveSlots()
-      setShowModal(false)
+      await slotService.deleteSlot(selectedSlot._id);
+
+      toast.success("Event updated successfully!");
+      retrieveSlots();
+      setShowModal(false);
       setEventInfo({
         eventTitle: "",
         venue: "",
@@ -176,14 +177,15 @@ const ForumAdmin = ({ retrieveSlots, slots, loginuser }) => {
         endTime: "",
         responsiblePerson: "",
         contactNumber: "",
-      })
+        canteenRemarks: "",
+      });
     } catch (error) {
-      console.error(error)
-      toast.error("Error updating event. Please try again.")
+      console.error(error);
+      toast.error("Error updating event. Please try again.");
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
 
   return (
     <div>
@@ -195,13 +197,20 @@ const ForumAdmin = ({ retrieveSlots, slots, loginuser }) => {
               <th scope="col">Forum</th>
               <th scope="col">Title</th>
               <th scope="col">Status</th>
+              <th scope="col">Remarks</th>
               <th scope="col">Actions</th>
               {loginuser === "admin" && <th scope="col">Download</th>}
             </tr>
           </thead>
           <tbody>
             {forumSlots.map((slot, index) => (
-              <tr key={slot._id} onClick={() => handleRowClick(slot)} style={{ cursor: slot.status === "pending" ? "pointer" : "default" }}>
+              <tr
+                key={slot._id}
+                onClick={() => handleRowClick(slot)}
+                style={{
+                  cursor: slot.status === "pending" ? "pointer" : "default",
+                }}
+              >
                 <th scope="row">{index + 1}.</th>
                 <td>{slot.username}</td>
                 <td>{slot.title}</td>
@@ -215,11 +224,25 @@ const ForumAdmin = ({ retrieveSlots, slots, loginuser }) => {
                   )}
                 </td>
                 <td>
+                  <div>
+                    Applied On:{" "}
+                    {moment(slot.bookingTime).format("MMM D, YYYY [at] h:mm A")}
+                  </div>
+                  {slot.status === "approved" && slot.approvalTime && (
+                    <div>
+                      Approved On:{" "}
+                      {moment(slot.approvalTime).format(
+                        "MMM D, YYYY [at] h:mm A"
+                      )}
+                    </div>
+                  )}
+                </td>
+                <td>
                   {slot.status !== "approved" && (
-                    <Button 
-                      variant="danger" 
+                    <Button
+                      variant="danger"
                       onClick={(e) => handleDelete(e, slot)}
-                      style={{ marginLeft: '10px' }}
+                      style={{ marginLeft: "10px" }}
                     >
                       Delete
                     </Button>
@@ -232,7 +255,8 @@ const ForumAdmin = ({ retrieveSlots, slots, loginuser }) => {
                       onClick={(e) => handleDownloadPDF(e, slot)}
                       disabled={isGeneratingPDF}
                     >
-                      <FaDownload /> {isGeneratingPDF ? 'Generating...' : 'Download PDF'}
+                      <FaDownload />{" "}
+                      {isGeneratingPDF ? "Generating..." : "Download PDF"}
                     </Button>
                   </td>
                 )}
@@ -255,6 +279,7 @@ const ForumAdmin = ({ retrieveSlots, slots, loginuser }) => {
             bottom: 0,
             left: 0,
             right: 0,
+            zIndex: 1000,
           }}
         >
           <div className="modal-dialog">
@@ -265,7 +290,7 @@ const ForumAdmin = ({ retrieveSlots, slots, loginuser }) => {
                   type="button"
                   className="btn-close"
                   onClick={() => {
-                    setShowModal(false)
+                    setShowModal(false);
                     setEventInfo({
                       eventTitle: "",
                       venue: "",
@@ -273,7 +298,8 @@ const ForumAdmin = ({ retrieveSlots, slots, loginuser }) => {
                       endTime: "",
                       responsiblePerson: "",
                       contactNumber: "",
-                    })
+                      canteenRemarks: "",
+                    });
                   }}
                 ></button>
               </div>
@@ -287,7 +313,7 @@ const ForumAdmin = ({ retrieveSlots, slots, loginuser }) => {
                   id="eventTitle"
                   value={eventInfo.eventTitle}
                   required
-                  onChange={e =>
+                  onChange={(e) =>
                     setEventInfo({
                       ...eventInfo,
                       eventTitle: e.target.value,
@@ -301,13 +327,15 @@ const ForumAdmin = ({ retrieveSlots, slots, loginuser }) => {
                   className="form-select"
                   id="venue"
                   value={eventInfo.venue}
-                  onChange={e =>
+                  onChange={(e) =>
                     setEventInfo({ ...eventInfo, venue: e.target.value })
                   }
                   required
                 >
                   <option value="">Select Venue</option>
-                  <option value="CV Raman Auditorium">CV Raman Auditorium</option>
+                  <option value="CV Raman Auditorium">
+                    CV Raman Auditorium
+                  </option>
                   <option value="Multipurpose Hall">Multipurpose Hall</option>
                   <option value="Senate Hall">Senate Hall</option>
                   <option value="NTIC Hall">NTIC Hall</option>
@@ -321,7 +349,7 @@ const ForumAdmin = ({ retrieveSlots, slots, loginuser }) => {
                   id="startTime"
                   required
                   value={eventInfo.startTime}
-                  onChange={e =>
+                  onChange={(e) =>
                     setEventInfo({
                       ...eventInfo,
                       startTime: e.target.value,
@@ -337,7 +365,7 @@ const ForumAdmin = ({ retrieveSlots, slots, loginuser }) => {
                   id="endTime"
                   required
                   value={eventInfo.endTime}
-                  onChange={e =>
+                  onChange={(e) =>
                     setEventInfo({ ...eventInfo, endTime: e.target.value })
                   }
                 />
@@ -350,7 +378,7 @@ const ForumAdmin = ({ retrieveSlots, slots, loginuser }) => {
                   id="responsiblePerson"
                   required
                   value={eventInfo.responsiblePerson}
-                  onChange={e =>
+                  onChange={(e) =>
                     setEventInfo({
                       ...eventInfo,
                       responsiblePerson: e.target.value,
@@ -369,10 +397,26 @@ const ForumAdmin = ({ retrieveSlots, slots, loginuser }) => {
                   maxLength="10"
                   title="Please enter a 10-digit phone number"
                   value={eventInfo.contactNumber}
-                  onChange={e =>
+                  onChange={(e) =>
                     setEventInfo({
                       ...eventInfo,
                       contactNumber: e.target.value,
+                    })
+                  }
+                />
+                <label htmlFor="canteenRemarks" className="form-label">
+                  Canteen Remarks:
+                </label>
+                <textarea
+                  className="form-control"
+                  id="canteenRemarks"
+                  rows="4"
+                  placeholder="Enter any special instructions or requirements for the canteen"
+                  value={eventInfo.canteenRemarks}
+                  onChange={(e) =>
+                    setEventInfo({
+                      ...eventInfo,
+                      canteenRemarks: e.target.value,
                     })
                   }
                 />
@@ -392,7 +436,7 @@ const ForumAdmin = ({ retrieveSlots, slots, loginuser }) => {
         </div>
       )}
     </div>
-  )
-}
+  );
+};
 
-export default ForumAdmin
+export default ForumAdmin;

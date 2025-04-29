@@ -1,22 +1,22 @@
-import React, { useState, useEffect } from "react"
-import slotService from "../../Services/service.js"
-import { useNavigate } from "react-router-dom"
-import { Calendar, momentLocalizer } from "react-big-calendar"
-import moment from "moment"
-import "./index.css"
-import { toast } from "react-toastify"
-import "react-big-calendar/lib/css/react-big-calendar.css"
-import cec from "../../Assets/cec.png"
-import { ieee, iedc, nss, arc } from "../../Assets"
-const localizer = momentLocalizer(moment)
+import React, { useState, useEffect } from "react";
+import slotService from "../../Services/service.js";
+import { useNavigate } from "react-router-dom";
+import { Calendar, momentLocalizer } from "react-big-calendar";
+import moment from "moment";
+import "./index.css";
+import { toast } from "react-toastify";
+import "react-big-calendar/lib/css/react-big-calendar.css";
+import cec from "../../Assets/cec.png";
+import { ieee, iedc, nss, arc } from "../../Assets";
+const localizer = momentLocalizer(moment);
 
 const CalendarInterface = ({ loginuser }) => {
-  const navigate = useNavigate()
-  const [events, setEvents] = useState([])
-  const [showModal, setShowModal] = useState(false)
-  const [forumData, setForumData] = useState()
-  const [selectedStartDate, setselectedStartDate] = useState(null)
-  const [selectEvent, setSelectEvent] = useState(null)
+  const navigate = useNavigate();
+  const [events, setEvents] = useState([]);
+  const [showModal, setShowModal] = useState(false);
+  const [forumData, setForumData] = useState();
+  const [selectedStartDate, setselectedStartDate] = useState(null);
+  const [selectEvent, setSelectEvent] = useState(null);
   const [eventInfo, setEventInfo] = useState({
     eventTitle: "",
     venue: "",
@@ -24,83 +24,90 @@ const CalendarInterface = ({ loginuser }) => {
     endTime: "",
     responsiblePerson: "",
     contactNumber: "",
-  })
-  const [isSubmitting, setIsSubmitting] = useState(false)
+    canteenRemarks: "",
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    retrieveSlots()
-  }, [])
+    retrieveSlots();
+  }, []);
 
   const retrieveSlots = () => {
     slotService
       .getAllSlots()
-      .then(response => {
+      .then((response) => {
         const eventsData = response.data.slots
-          .filter(slot => slot.status === "approved")
-          .map(slot => ({
+          .filter((slot) => slot.status === "approved")
+          .map((slot) => ({
             ...slot,
             start: moment(slot.start).toDate(),
             end: moment(slot.end).toDate(),
-          }))
-        setEvents(eventsData)
+          }));
+        setEvents(eventsData);
       })
-      .catch(console.error)
-  }
-  const handleSelectSlot = slotInfo => {
+      .catch(console.error);
+  };
+  const handleSelectSlot = (slotInfo) => {
     if (!loginuser) {
-      toast.error("Only logged in users can add events.")
-      navigate("/sign")
-      return
+      toast.error("Only logged in users can add events.");
+      navigate("/sign");
+      return;
     }
-    const selectedDate = new Date(slotInfo.start)
-    const today = new Date()
+    const selectedDate = new Date(slotInfo.start);
+    const today = new Date();
     if (selectedDate <= today) {
-      toast.error("You cannot add events to past dates.")
-      return
+      toast.error("You cannot add events to past dates.");
+      return;
     }
-    setShowModal(true)
-    setselectedStartDate(slotInfo.start)
-    setSelectEvent(null)
-  }
+    setShowModal(true);
+    setselectedStartDate(slotInfo.start);
+    setSelectEvent(null);
+  };
 
-  const handleSelectedEvent = event => {
-    setShowModal(true)
-    setSelectEvent(event)
+  const handleSelectedEvent = (event) => {
+    setShowModal(true);
+    setSelectEvent(event);
     setEventInfo({
       eventTitle: event.title,
       venue: event.venue,
       startTime: moment(event.start).format("HH:mm"),
       endTime: moment(event.end).format("HH:mm"),
-      responsiblePerson: event.responsiblePerson || '',
-      contactNumber: event.contactNumber || ''
-    })
-  }
+      responsiblePerson: event.responsiblePerson || "",
+      contactNumber: event.contactNumber || "",
+      canteenRemarks: event.canteenRemarks || "",
+    });
+  };
   const saveEvent = async () => {
-    // Prevent double submission
     if (isSubmitting) {
-      return
+      return;
     }
 
     // Check if all required fields are filled
-    if (!eventInfo.eventTitle || !eventInfo.venue || !eventInfo.startTime || 
-        !eventInfo.endTime || !eventInfo.responsiblePerson || !eventInfo.contactNumber) {
-      toast.error("Please fill in all fields")
-      return
+    if (
+      !eventInfo.eventTitle ||
+      !eventInfo.venue ||
+      !eventInfo.startTime ||
+      !eventInfo.endTime ||
+      !eventInfo.responsiblePerson ||
+      !eventInfo.contactNumber
+    ) {
+      toast.error("Please fill in all required fields");
+      return;
     }
 
     // Validate phone number length
     if (eventInfo.contactNumber.length !== 10) {
-      toast.error("Contact number must be 10 digits long")
-      return
+      toast.error("Contact number must be 10 digits long");
+      return;
     }
 
     // Validate phone number contains only digits
     if (!/^\d+$/.test(eventInfo.contactNumber)) {
-      toast.error("Contact number must contain only digits")
-      return
+      toast.error("Contact number must contain only digits");
+      return;
     }
 
-    setIsSubmitting(true)
+    setIsSubmitting(true);
 
     try {
       const startDateTime = moment(selectedStartDate)
@@ -108,28 +115,28 @@ const CalendarInterface = ({ loginuser }) => {
           hour: parseInt(eventInfo.startTime.split(":")[0]),
           minute: parseInt(eventInfo.startTime.split(":")[1]),
         })
-        .toDate()
+        .toDate();
       const endDateTime = moment(selectedStartDate)
         .set({
           hour: parseInt(eventInfo.endTime.split(":")[0]),
           minute: parseInt(eventInfo.endTime.split(":")[1]),
         })
-        .toDate()
+        .toDate();
 
       // Validate that end time is after start time
       if (endDateTime <= startDateTime) {
-        toast.error("End time must be after start time")
-        setIsSubmitting(false)
-        return
+        toast.error("End time must be after start time");
+        setIsSubmitting(false);
+        return;
       }
 
       // Check for clash with approved events only
-      const hasClash = events.some(event => {
+      const hasClash = events.some((event) => {
         // Only check against approved events
         if (event.status !== "approved") return false;
-        
-        const eventStartTime = moment(event.start)
-        const eventEndTime = moment(event.end)
+
+        const eventStartTime = moment(event.start);
+        const eventEndTime = moment(event.end);
         return (
           event.venue === eventInfo.venue &&
           ((eventStartTime.isBefore(startDateTime) &&
@@ -138,13 +145,13 @@ const CalendarInterface = ({ loginuser }) => {
               eventEndTime.isAfter(endDateTime)) ||
             (eventStartTime.isSameOrAfter(startDateTime) &&
               eventEndTime.isSameOrBefore(endDateTime)))
-        )
-      })
+        );
+      });
 
       if (hasClash) {
         toast.error(
           "There is already an approved event in this hall at the same time. Your request will be reviewed by the admin."
-        )
+        );
         // Don't return here, allow the request to be sent
       }
 
@@ -157,11 +164,12 @@ const CalendarInterface = ({ loginuser }) => {
           end: endDateTime,
           responsiblePerson: eventInfo.responsiblePerson,
           contactNumber: eventInfo.contactNumber,
-        }
-        const updatedEvents = events.map(event =>
+          canteenRemarks: eventInfo.canteenRemarks,
+        };
+        const updatedEvents = events.map((event) =>
           event === selectEvent ? updatedEvent : event
-        )
-        setEvents(updatedEvents)
+        );
+        setEvents(updatedEvents);
       } else {
         const newEvent = {
           username: loginuser,
@@ -171,15 +179,16 @@ const CalendarInterface = ({ loginuser }) => {
           venue: eventInfo.venue,
           responsiblePerson: eventInfo.responsiblePerson,
           contactNumber: eventInfo.contactNumber,
-        }
-        
-        await slotService.createSlot(newEvent)
-        toast.success("Event Request has been successfully sent to Principal!")
-        await retrieveSlots()
+          canteenRemarks: eventInfo.canteenRemarks,
+        };
+
+        await slotService.createSlot(newEvent);
+        toast.success("Event Request has been successfully sent to Principal!");
+        await retrieveSlots();
       }
 
       // Reset form and close modal
-      setShowModal(false)
+      setShowModal(false);
       setEventInfo({
         eventTitle: "",
         venue: "",
@@ -187,59 +196,61 @@ const CalendarInterface = ({ loginuser }) => {
         endTime: "",
         responsiblePerson: "",
         contactNumber: "",
-      })
-      
+        canteenRemarks: "",
+      });
+
       // Navigate after everything is done
-      navigate("/forum_admin")
+      navigate("/forum_admin");
     } catch (error) {
-      console.error(error)
-      toast.error("Error creating event. Please try again.")
+      console.error(error);
+      toast.error("Error creating event. Please try again.");
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
 
   const deleteEvent = async () => {
     if (selectEvent) {
       const confirmation = window.confirm(
         "Are you sure you want to delete this event?"
-      )
+      );
       if (confirmation) {
         try {
-          await slotService.deleteSlot(selectEvent._id)
-          setEvents(events.filter(event => event !== selectEvent))
-          toast.success("Event has been deleted successfully!")
-          setShowModal(false)
+          await slotService.deleteSlot(selectEvent._id);
+          setEvents(events.filter((event) => event !== selectEvent));
+          toast.success("Event has been deleted successfully!");
+          setShowModal(false);
           setEventInfo({
             eventTitle: "",
             venue: "",
             startTime: "",
             endTime: "",
-          })
+            canteenRemarks: "",
+          });
         } catch (error) {
-          console.log(error)
-          toast.error("Error occurred while deleting the event.")
+          console.log(error);
+          toast.error("Error occurred while deleting the event.");
         }
       }
     }
-  }
+  };
   const components = {
     month: {
-      event: props => {
-        const forum = props?.event?.username
-        let eventIcon
+      event: (props) => {
+        const forum = props?.event?.username;
+        let eventIcon;
         switch (forum) {
           case "ieee":
-            eventIcon = ieee
-            break
+            eventIcon = ieee;
+            break;
           case "nss":
-            eventIcon = nss
-            break
+            eventIcon = nss;
+            break;
           case "iedc":
-            eventIcon = iedc
-            break
+            eventIcon = iedc;
+            break;
           default:
-            eventIcon = cec
+            eventIcon = cec;
         }
         return (
           <div className="eventContainer">
@@ -255,31 +266,34 @@ const CalendarInterface = ({ loginuser }) => {
               {props.title}
             </div>
           </div>
-        )
+        );
       },
     },
 
     day: {
-      event: props => {
-        const forum = props?.event?.username
-        let eventIcon
+      event: (props) => {
+        const forum = props?.event?.username;
+        let eventIcon;
         switch (forum) {
           case "ieee":
-            eventIcon = ieee
-            break
+            eventIcon = ieee;
+            break;
           case "nss":
-            eventIcon = nss
-            break
+            eventIcon = nss;
+            break;
           case "iedc":
-            eventIcon = iedc
-            break
+            eventIcon = iedc;
+            break;
           default:
-            eventIcon = cec
+            eventIcon = cec;
         }
         return (
           <div className="eventContainer">
-            <div className={`eventType1 ${forum}`} style={{width:'1%'}}></div>
-            <div className={`eventType2 ${forum}`} style={{width:'99%'}}>
+            <div
+              className={`eventType1 ${forum}`}
+              style={{ width: "1%" }}
+            ></div>
+            <div className={`eventType2 ${forum}`} style={{ width: "99%" }}>
               <img
                 style={{ marginRight: "5px" }}
                 src={eventIcon}
@@ -287,16 +301,13 @@ const CalendarInterface = ({ loginuser }) => {
                 width={20}
                 height={20}
               />
-               {props.title} 
-               - {forum}
-              - {props.event.venue}
-              
+              {props.title}- {forum}- {props.event.venue}
             </div>
           </div>
-        )
+        );
       },
     },
-  }
+  };
   return (
     <div style={{ height: "700px" }}>
       <Calendar
@@ -336,13 +347,14 @@ const CalendarInterface = ({ loginuser }) => {
                       type="button"
                       className="btn-close"
                       onClick={() => {
-                        setShowModal(false)
+                        setShowModal(false);
                         setEventInfo({
                           eventTitle: "",
                           venue: "",
                           startTime: "",
                           endTime: "",
-                        })
+                          canteenRemarks: "",
+                        });
                       }}
                     ></button>
                   </div>
@@ -356,7 +368,7 @@ const CalendarInterface = ({ loginuser }) => {
                       id="eventTitle"
                       value={eventInfo.eventTitle}
                       required
-                      onChange={e =>
+                      onChange={(e) =>
                         setEventInfo({
                           ...eventInfo,
                           eventTitle: e.target.value,
@@ -370,14 +382,18 @@ const CalendarInterface = ({ loginuser }) => {
                       className="form-select"
                       id="venue"
                       value={eventInfo.venue}
-                      onChange={e =>
+                      onChange={(e) =>
                         setEventInfo({ ...eventInfo, venue: e.target.value })
                       }
                       required
                     >
                       <option value="">Select Venue</option>
-                      <option value="CV Raman Auditorium">CV Raman Auditorium</option>
-                      <option value="Multipurpose Hall">Multipurpose Hall</option>
+                      <option value="CV Raman Auditorium">
+                        CV Raman Auditorium
+                      </option>
+                      <option value="Multipurpose Hall">
+                        Multipurpose Hall
+                      </option>
                       <option value="Senate Hall">Senate Hall</option>
                       <option value="NTIC Hall">NTIC Hall</option>
                     </select>
@@ -390,7 +406,7 @@ const CalendarInterface = ({ loginuser }) => {
                       id="startTime"
                       required
                       value={eventInfo.startTime}
-                      onChange={e =>
+                      onChange={(e) =>
                         setEventInfo({
                           ...eventInfo,
                           startTime: e.target.value,
@@ -406,7 +422,7 @@ const CalendarInterface = ({ loginuser }) => {
                       id="endTime"
                       required
                       value={eventInfo.endTime}
-                      onChange={e =>
+                      onChange={(e) =>
                         setEventInfo({ ...eventInfo, endTime: e.target.value })
                       }
                     />
@@ -419,7 +435,7 @@ const CalendarInterface = ({ loginuser }) => {
                       id="responsiblePerson"
                       required
                       value={eventInfo.responsiblePerson}
-                      onChange={e =>
+                      onChange={(e) =>
                         setEventInfo({
                           ...eventInfo,
                           responsiblePerson: e.target.value,
@@ -438,10 +454,26 @@ const CalendarInterface = ({ loginuser }) => {
                       maxLength="10"
                       title="Please enter a 10-digit phone number"
                       value={eventInfo.contactNumber}
-                      onChange={e =>
+                      onChange={(e) =>
                         setEventInfo({
                           ...eventInfo,
                           contactNumber: e.target.value,
+                        })
+                      }
+                    />
+                    <label htmlFor="canteenRemarks" className="form-label">
+                      Canteen Remarks:
+                    </label>
+                    <textarea
+                      className="form-control"
+                      id="canteenRemarks"
+                      rows="4"
+                      placeholder="Enter any special instructions or requirements for the canteen"
+                      value={eventInfo.canteenRemarks}
+                      onChange={(e) =>
+                        setEventInfo({
+                          ...eventInfo,
+                          canteenRemarks: e.target.value,
                         })
                       }
                     />
@@ -480,7 +512,7 @@ const CalendarInterface = ({ loginuser }) => {
                       type="button"
                       className="btn-close"
                       onClick={() => {
-                        setShowModal(false)
+                        setShowModal(false);
                         setEventInfo({
                           eventTitle: "",
                           venue: "",
@@ -488,7 +520,8 @@ const CalendarInterface = ({ loginuser }) => {
                           endTime: "",
                           responsiblePerson: "",
                           contactNumber: "",
-                        })
+                          canteenRemarks: "",
+                        });
                       }}
                     ></button>
                   </div>
@@ -502,7 +535,7 @@ const CalendarInterface = ({ loginuser }) => {
                       id="eventTitle"
                       value={eventInfo.eventTitle}
                       required
-                      onChange={e =>
+                      onChange={(e) =>
                         setEventInfo({
                           ...eventInfo,
                           eventTitle: e.target.value,
@@ -516,14 +549,18 @@ const CalendarInterface = ({ loginuser }) => {
                       className="form-select"
                       id="venue"
                       value={eventInfo.venue}
-                      onChange={e =>
+                      onChange={(e) =>
                         setEventInfo({ ...eventInfo, venue: e.target.value })
                       }
                       required
                     >
                       <option value="">Select Venue</option>
-                      <option value="CV Raman Auditorium">CV Raman Auditorium</option>
-                      <option value="Multipurpose Hall">Multipurpose Hall</option>
+                      <option value="CV Raman Auditorium">
+                        CV Raman Auditorium
+                      </option>
+                      <option value="Multipurpose Hall">
+                        Multipurpose Hall
+                      </option>
                       <option value="Senate Hall">Senate Hall</option>
                       <option value="NTIC Hall">NTIC Hall</option>
                     </select>
@@ -536,7 +573,7 @@ const CalendarInterface = ({ loginuser }) => {
                       id="startTime"
                       required
                       value={eventInfo.startTime}
-                      onChange={e =>
+                      onChange={(e) =>
                         setEventInfo({
                           ...eventInfo,
                           startTime: e.target.value,
@@ -552,7 +589,7 @@ const CalendarInterface = ({ loginuser }) => {
                       id="endTime"
                       required
                       value={eventInfo.endTime}
-                      onChange={e =>
+                      onChange={(e) =>
                         setEventInfo({ ...eventInfo, endTime: e.target.value })
                       }
                     />
@@ -565,7 +602,7 @@ const CalendarInterface = ({ loginuser }) => {
                       id="responsiblePerson"
                       required
                       value={eventInfo.responsiblePerson}
-                      onChange={e =>
+                      onChange={(e) =>
                         setEventInfo({
                           ...eventInfo,
                           responsiblePerson: e.target.value,
@@ -584,10 +621,26 @@ const CalendarInterface = ({ loginuser }) => {
                       maxLength="10"
                       title="Please enter a 10-digit phone number"
                       value={eventInfo.contactNumber}
-                      onChange={e =>
+                      onChange={(e) =>
                         setEventInfo({
                           ...eventInfo,
                           contactNumber: e.target.value,
+                        })
+                      }
+                    />
+                    <label htmlFor="canteenRemarks" className="form-label">
+                      Canteen Remarks:
+                    </label>
+                    <textarea
+                      className="form-control"
+                      id="canteenRemarks"
+                      rows="4"
+                      placeholder="Enter any special instructions or requirements for the canteen"
+                      value={eventInfo.canteenRemarks}
+                      onChange={(e) =>
+                        setEventInfo({
+                          ...eventInfo,
+                          canteenRemarks: e.target.value,
                         })
                       }
                     />
@@ -668,11 +721,21 @@ const CalendarInterface = ({ loginuser }) => {
                         </tr>
                         <tr>
                           <td className="fw-bold">Responsible Person:</td>
-                          <td className="text-muted">{selectEvent.responsiblePerson}</td>
+                          <td className="text-muted">
+                            {selectEvent.responsiblePerson}
+                          </td>
                         </tr>
                         <tr>
                           <td className="fw-bold">Contact Number:</td>
-                          <td className="text-muted">{selectEvent.contactNumber}</td>
+                          <td className="text-muted">
+                            {selectEvent.contactNumber}
+                          </td>
+                        </tr>
+                        <tr>
+                          <td className="fw-bold">Canteen Remarks:</td>
+                          <td className="text-muted">
+                            {selectEvent.canteenRemarks}
+                          </td>
                         </tr>
                       </tbody>
                     </table>
@@ -746,11 +809,21 @@ const CalendarInterface = ({ loginuser }) => {
                       </tr>
                       <tr>
                         <td className="fw-bold">Responsible Person:</td>
-                        <td className="text-muted">{selectEvent.responsiblePerson}</td>
+                        <td className="text-muted">
+                          {selectEvent.responsiblePerson}
+                        </td>
                       </tr>
                       <tr>
                         <td className="fw-bold">Contact Number:</td>
-                        <td className="text-muted">{selectEvent.contactNumber}</td>
+                        <td className="text-muted">
+                          {selectEvent.contactNumber}
+                        </td>
+                      </tr>
+                      <tr>
+                        <td className="fw-bold">Canteen Remarks:</td>
+                        <td className="text-muted">
+                          {selectEvent.canteenRemarks}
+                        </td>
                       </tr>
                     </tbody>
                   </table>
@@ -769,7 +842,7 @@ const CalendarInterface = ({ loginuser }) => {
           </div>
         ))}
     </div>
-  )
-}
+  );
+};
 
-export default CalendarInterface
+export default CalendarInterface;

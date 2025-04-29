@@ -1,121 +1,129 @@
-import React, { useEffect } from "react"
-import { Button, Table } from "react-bootstrap"
-import { toast } from "react-toastify"
-import "react-toastify/dist/ReactToastify.css"
-import slotService from "../../Services/service.js"
-import moment from "moment"
-import BookingPDF from "./BookingPDF"
-import { generatePDF } from "../../utils/pdfGenerator"
-import { FaDownload } from "react-icons/fa"
+import React, { useEffect } from "react";
+import { Button, Table } from "react-bootstrap";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import slotService from "../../Services/service.js";
+import moment from "moment";
+import BookingPDF from "./BookingPDF";
+import { generatePDF } from "../../utils/pdfGenerator";
+import { FaDownload } from "react-icons/fa";
 
 const Admin = ({ retrieveSlots, pendingSlots }) => {
-  const [showModal, setShowModal] = React.useState(false)
-  const [slot, setSlot] = React.useState({})
-  const [isGeneratingPDF, setIsGeneratingPDF] = React.useState(false)
+  const [showModal, setShowModal] = React.useState(false);
+  const [slot, setSlot] = React.useState({});
+  const [isGeneratingPDF, setIsGeneratingPDF] = React.useState(false);
 
   useEffect(() => {
-    retrieveSlots()
-  }, [retrieveSlots])
+    retrieveSlots();
+  }, [retrieveSlots]);
 
-  const handleRowClick = slot => {
-    setShowModal(true)
-    setSlot(slot)
-  }
+  const handleRowClick = (slot) => {
+    setShowModal(true);
+    setSlot(slot);
+  };
 
   const handleDownloadPDF = async (e, slot) => {
-    e.stopPropagation()
-    if (isGeneratingPDF) return
+    e.stopPropagation();
+    if (isGeneratingPDF) return;
 
-    setIsGeneratingPDF(true)
+    setIsGeneratingPDF(true);
     try {
-      await generatePDF(<BookingPDF slot={slot} />, slot)
-      toast.success("PDF downloaded successfully!")
+      await generatePDF(<BookingPDF slot={slot} />, slot);
+      toast.success("PDF downloaded successfully!");
     } catch (error) {
-      console.error("Error generating PDF:", error)
-      toast.error("Error generating PDF. Please try again.")
+      console.error("Error generating PDF:", error);
+      toast.error("Error generating PDF. Please try again.");
     } finally {
-      setIsGeneratingPDF(false)
+      setIsGeneratingPDF(false);
     }
-  }
+  };
 
-  const handleApprove = async id => {
+  const handleApprove = async (id) => {
     try {
       // Get all slots to check for collisions
-      const response = await slotService.getAllSlots()
-      const allSlots = response.data.slots
-      const slotToApprove = allSlots.find(s => s._id === id)
-      
+      const response = await slotService.getAllSlots();
+      const allSlots = response.data.slots;
+      const slotToApprove = allSlots.find((s) => s._id === id);
+
       // Check for collisions with approved events
-      const hasCollision = allSlots.some(slot => {
-        if (slot._id === id || slot.status !== "approved") return false
-        
-        const slotStart = moment(slot.start)
-        const slotEnd = moment(slot.end)
-        const approveStart = moment(slotToApprove.start)
-        const approveEnd = moment(slotToApprove.end)
-        
+      const hasCollision = allSlots.some((slot) => {
+        if (slot._id === id || slot.status !== "approved") return false;
+
+        const slotStart = moment(slot.start);
+        const slotEnd = moment(slot.end);
+        const approveStart = moment(slotToApprove.start);
+        const approveEnd = moment(slotToApprove.end);
+
         return (
           slot.venue === slotToApprove.venue &&
-          ((slotStart.isBefore(approveStart) && slotEnd.isAfter(approveStart)) ||
+          ((slotStart.isBefore(approveStart) &&
+            slotEnd.isAfter(approveStart)) ||
             (slotStart.isBefore(approveEnd) && slotEnd.isAfter(approveEnd)) ||
-            (slotStart.isSameOrAfter(approveStart) && slotEnd.isSameOrBefore(approveEnd)))
-        )
-      })
+            (slotStart.isSameOrAfter(approveStart) &&
+              slotEnd.isSameOrBefore(approveEnd)))
+        );
+      });
 
       if (hasCollision) {
-        toast.error("Cannot approve this event as there is already an approved event in the same hall at the same time.")
-        return
+        toast.error(
+          "Cannot approve this event as there is already an approved event in the same hall at the same time."
+        );
+        return;
       }
 
       // If no collision, proceed with approval
-      await slotService.updateSlotStatus(id, "approved")
-      toast.success("Slot approved successfully")
-      
+      await slotService.updateSlotStatus(id, "approved");
+      toast.success("Slot approved successfully");
+
       // Reject any pending events that would collide with this newly approved event
-      const slotsToReject = allSlots.filter(slot => {
-        if (slot._id === id || slot.status !== "pending") return false
-        
-        const slotStart = moment(slot.start)
-        const slotEnd = moment(slot.end)
-        const approveStart = moment(slotToApprove.start)
-        const approveEnd = moment(slotToApprove.end)
-        
+      const slotsToReject = allSlots.filter((slot) => {
+        if (slot._id === id || slot.status !== "pending") return false;
+
+        const slotStart = moment(slot.start);
+        const slotEnd = moment(slot.end);
+        const approveStart = moment(slotToApprove.start);
+        const approveEnd = moment(slotToApprove.end);
+
         return (
           slot.venue === slotToApprove.venue &&
-          ((slotStart.isBefore(approveStart) && slotEnd.isAfter(approveStart)) ||
+          ((slotStart.isBefore(approveStart) &&
+            slotEnd.isAfter(approveStart)) ||
             (slotStart.isBefore(approveEnd) && slotEnd.isAfter(approveEnd)) ||
-            (slotStart.isSameOrAfter(approveStart) && slotEnd.isSameOrBefore(approveEnd)))
-        )
-      })
+            (slotStart.isSameOrAfter(approveStart) &&
+              slotEnd.isSameOrBefore(approveEnd)))
+        );
+      });
 
       // Reject all colliding events
       for (const slot of slotsToReject) {
-        await slotService.updateSlotStatus(slot._id, "rejected")
+        await slotService.updateSlotStatus(slot._id, "rejected");
       }
 
-      setShowModal(false)
+      setShowModal(false);
 
       if (slotsToReject.length > 0) {
-        toast.info(`${slotsToReject.length} colliding event(s) have been automatically rejected.`)
+        toast.info(
+          `${slotsToReject.length} colliding event(s) have been automatically rejected.`
+        );
       }
 
-      retrieveSlots()
+      retrieveSlots();
     } catch (error) {
-      console.error(error)
-      toast.error("Error processing the approval")
+      console.error(error);
+      toast.error("Error processing the approval");
     }
-  }
+  };
 
-  const handleReject = async id => {
+  const handleReject = async (id) => {
     try {
-      await slotService.updateSlotStatus(id, "rejected")
-      setShowModal(false)
-      toast.success("Slot rejected successfully")
-      retrieveSlots()
+      await slotService.updateSlotStatus(id, "rejected");
+      setShowModal(false);
+      toast.success("Slot rejected successfully");
+      retrieveSlots();
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
-  }
+  };
 
   return (
     <div>
@@ -159,7 +167,8 @@ const Admin = ({ retrieveSlots, pendingSlots }) => {
                     onClick={(e) => handleDownloadPDF(e, slot)}
                     disabled={isGeneratingPDF}
                   >
-                    <FaDownload /> {isGeneratingPDF ? 'Generating...' : 'Download PDF'}
+                    <FaDownload />{" "}
+                    {isGeneratingPDF ? "Generating..." : "Download PDF"}
                   </Button>
                 </td>
               </tr>
@@ -249,6 +258,12 @@ const Admin = ({ retrieveSlots, pendingSlots }) => {
                       <td className="fw-bold">Contact Number:</td>
                       <td className="text-muted">{slot.contactNumber}</td>
                     </tr>
+                    <tr>
+                      <td className="fw-bold">Canteen Remarks:</td>
+                      <td className="text-muted">
+                        {slot.canteenRemarks || "No remarks"}
+                      </td>
+                    </tr>
                   </tbody>
                 </table>
               </div>
@@ -268,7 +283,7 @@ const Admin = ({ retrieveSlots, pendingSlots }) => {
         </div>
       )}
     </div>
-  )
-}
+  );
+};
 
-export default Admin
+export default Admin;
