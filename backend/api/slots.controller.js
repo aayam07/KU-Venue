@@ -20,6 +20,7 @@ export default class slotsController {
       const responsiblePerson = req.body.responsiblePerson;
       const contactNumber = req.body.contactNumber;
       const canteenRemarks = req.body.canteenRemarks;
+      const requirements = req.body.requirements;
       const slot = await slotsDAO.createSlot(
         title,
         venue,
@@ -28,7 +29,8 @@ export default class slotsController {
         username,
         responsiblePerson,
         contactNumber,
-        canteenRemarks
+        canteenRemarks,
+        requirements
       );
       res.json({ status: "success" });
     } catch (e) {

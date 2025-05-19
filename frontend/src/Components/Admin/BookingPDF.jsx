@@ -102,138 +102,76 @@ const styles = StyleSheet.create({
   },
 });
 
-const BookingPDF = ({ slot }) => (
-  <Document>
-    <Page size="A4" style={styles.page}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Venue Booking Confirmation</Text>
-        <Text style={styles.subtitle}>KU Venue Booking System</Text>
-      </View>
+const BookingPDF = ({ slot }) => {
+  return (
+    <div style={{ padding: "20px", fontFamily: "Arial, sans-serif" }}>
+      <div style={{ textAlign: "center", marginBottom: "20px" }}>
+        <h1 style={{ color: "#283618", marginBottom: "10px" }}>Booking Confirmation</h1>
+        <p style={{ color: "#666" }}>Your venue booking has been confirmed</p>
+      </div>
 
-      <View style={styles.section}>
-        <View style={styles.row}>
-          <Text style={styles.label}>Event Title:</Text>
-          <Text style={styles.value}>{slot.title}</Text>
-        </View>
+      <div style={{ marginBottom: "20px" }}>
+        <h2 style={{ color: "#283618", fontSize: "18px", marginBottom: "10px" }}>Event Details</h2>
+        <table style={{ width: "100%", borderCollapse: "collapse" }}>
+          <tbody>
+            <tr>
+              <td style={{ padding: "8px", borderBottom: "1px solid #ddd", fontWeight: "bold" }}>Event Title:</td>
+              <td style={{ padding: "8px", borderBottom: "1px solid #ddd" }}>{slot.title}</td>
+            </tr>
+            <tr>
+              <td style={{ padding: "8px", borderBottom: "1px solid #ddd", fontWeight: "bold" }}>Venue:</td>
+              <td style={{ padding: "8px", borderBottom: "1px solid #ddd" }}>{slot.venue}</td>
+            </tr>
+            <tr>
+              <td style={{ padding: "8px", borderBottom: "1px solid #ddd", fontWeight: "bold" }}>Date:</td>
+              <td style={{ padding: "8px", borderBottom: "1px solid #ddd" }}>
+                {moment(slot.start).format("MMMM D, YYYY")}
+              </td>
+            </tr>
+            <tr>
+              <td style={{ padding: "8px", borderBottom: "1px solid #ddd", fontWeight: "bold" }}>Time:</td>
+              <td style={{ padding: "8px", borderBottom: "1px solid #ddd" }}>
+                {moment(slot.start).format("h:mm A")} - {moment(slot.end).format("h:mm A")}
+              </td>
+            </tr>
+            <tr>
+              <td style={{ padding: "8px", borderBottom: "1px solid #ddd", fontWeight: "bold" }}>Responsible Person:</td>
+              <td style={{ padding: "8px", borderBottom: "1px solid #ddd" }}>{slot.responsiblePerson}</td>
+            </tr>
+            <tr>
+              <td style={{ padding: "8px", borderBottom: "1px solid #ddd", fontWeight: "bold" }}>Contact Number:</td>
+              <td style={{ padding: "8px", borderBottom: "1px solid #ddd" }}>{slot.contactNumber}</td>
+            </tr>
+            <tr>
+              <td style={{ padding: "8px", borderBottom: "1px solid #ddd", fontWeight: "bold" }}>Requirements:</td>
+              <td style={{ padding: "8px", borderBottom: "1px solid #ddd" }}>
+                {Object.entries(slot.requirements || {})
+                  .filter(([_, value]) => value)
+                  .map(([key]) => {
+                    const formattedKey = key
+                      .replace(/([A-Z])/g, ' $1')
+                      .replace(/^./, str => str.toUpperCase());
+                    return formattedKey;
+                  })
+                  .join(', ') || 'None'}
+              </td>
+            </tr>
+            {slot.canteenRemarks && (
+              <tr>
+                <td style={{ padding: "8px", borderBottom: "1px solid #ddd", fontWeight: "bold" }}>Canteen Remarks:</td>
+                <td style={{ padding: "8px", borderBottom: "1px solid #ddd" }}>{slot.canteenRemarks}</td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
 
-        <View style={styles.row}>
-          <Text style={styles.label}>Venue:</Text>
-          <Text style={styles.value}>{slot.venue}</Text>
-        </View>
-
-        <View style={styles.row}>
-          <Text style={styles.label}>Date:</Text>
-          <Text style={styles.value}>
-            {moment(slot.start).format("MMMM D, YYYY")}
-          </Text>
-        </View>
-
-        <View style={styles.row}>
-          <Text style={styles.label}>Time:</Text>
-          <Text style={styles.value}>
-            {moment(slot.start).format("h:mm A")} -{" "}
-            {moment(slot.end).format("h:mm A")}
-          </Text>
-        </View>
-
-        <View style={styles.row}>
-          <Text style={styles.label}>Forum/Organization:</Text>
-          <Text style={styles.value}>{slot.username}</Text>
-        </View>
-
-        <View style={styles.row}>
-          <Text style={styles.label}>Responsible Person:</Text>
-          <Text style={styles.value}>{slot.responsiblePerson}</Text>
-        </View>
-
-        <View style={styles.row}>
-          <Text style={styles.label}>Contact Number:</Text>
-          <Text style={styles.value}>{slot.contactNumber}</Text>
-        </View>
-
-        <View style={styles.row}>
-          <Text style={styles.label}>Booking Time:</Text>
-          <Text style={styles.value}>
-            {moment(slot.bookingTime).format("MMMM D, YYYY [at] h:mm A")}
-          </Text>
-        </View>
-
-        {slot.status === "approved" && slot.approvalTime && (
-          <>
-            <View style={styles.row}>
-              <Text style={styles.label}>Approval Time:</Text>
-              <Text style={styles.value}>
-                {moment(slot.approvalTime).format("MMMM D, YYYY [at] h:mm A")}
-              </Text>
-            </View>
-            <View style={styles.row}>
-              <Text style={styles.label}>Time Elapsed:</Text>
-              <Text style={styles.value}>
-                {moment
-                  .duration(
-                    moment(slot.approvalTime).diff(moment(slot.bookingTime))
-                  )
-                  .humanize()}
-              </Text>
-            </View>
-          </>
-        )}
-      </View>
-
-      <View style={styles.footer}>
-        <Text>Booked by: {slot.responsiblePerson}</Text>
-        <Text>Forum: {slot.username}</Text>
-        <Text>Generated on: {moment().format("MMMM D, YYYY [at] h:mm A")}</Text>
-      </View>
-    </Page>
-
-    {slot.canteenRemarks && (
-      <Page size="A4" style={styles.canteenPage}>
-        <View style={styles.canteenHeader}>
-          <Text style={styles.canteenTitle}>Canteen Instructions</Text>
-          <Text style={styles.canteenSubtitle}>KU Venue Booking System</Text>
-        </View>
-
-        <View style={styles.canteenSection}>
-          <View style={styles.canteenRow}>
-            <Text style={styles.canteenLabel}>Event Title:</Text>
-            <Text style={styles.canteenValue}>{slot.title}</Text>
-          </View>
-
-          <View style={styles.canteenRow}>
-            <Text style={styles.canteenLabel}>Venue:</Text>
-            <Text style={styles.canteenValue}>{slot.venue}</Text>
-          </View>
-
-          <View style={styles.canteenRow}>
-            <Text style={styles.canteenLabel}>Date:</Text>
-            <Text style={styles.canteenValue}>
-              {moment(slot.start).format("MMMM D, YYYY")}
-            </Text>
-          </View>
-
-          <View style={styles.canteenRow}>
-            <Text style={styles.canteenLabel}>Time:</Text>
-            <Text style={styles.canteenValue}>
-              {moment(slot.start).format("h:mm A")} -{" "}
-              {moment(slot.end).format("h:mm A")}
-            </Text>
-          </View>
-
-          <View style={styles.canteenRemarks}>
-            <Text style={styles.canteenLabel}>Special Instructions:</Text>
-            <Text style={styles.canteenRemarksText}>{slot.canteenRemarks}</Text>
-          </View>
-        </View>
-
-        <View style={styles.footer}>
-          <Text>
-            Generated on: {moment().format("MMMM D, YYYY [at] h:mm A")}
-          </Text>
-        </View>
-      </Page>
-    )}
-  </Document>
-);
+      <div style={{ marginTop: "30px", textAlign: "center", color: "#666" }}>
+        <p>Thank you for using our venue booking system!</p>
+        <p>For any queries, please contact the administration.</p>
+      </div>
+    </div>
+  );
+};
 
 export default BookingPDF;

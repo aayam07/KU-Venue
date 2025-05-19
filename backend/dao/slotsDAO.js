@@ -32,7 +32,8 @@ export default class slotsDAO {
     username,
     responsiblePerson,
     contactNumber,
-    canteenRemarks
+    canteenRemarks,
+    requirements
   ) {
     try {
       const slot = {
@@ -47,6 +48,11 @@ export default class slotsDAO {
         bookingTime: new Date(),
         approvalTime: null,
         canteenRemarks: canteenRemarks || "",
+        requirements: requirements || {
+          ac: false,
+          soundSystem: false,
+          projector: false
+        }
       };
       return await slots.insertOne(slot);
     } catch (e) {

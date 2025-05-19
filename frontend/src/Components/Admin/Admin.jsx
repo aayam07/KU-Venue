@@ -195,29 +195,10 @@ const Admin = ({ retrieveSlots, pendingSlots }) => {
           <div className="modal-dialog modal-dialog-centered">
             <div className="modal-content">
               <div className="modal-header">
-                <img
-                  src=""
-                  alt="Logo"
-                  style={{
-                    width: "100px",
-                    height: "auto",
-                    marginRight: "10px",
-                  }}
-                />
-                <h5
-                  className="modal-title"
-                  style={{
-                    margin: 0,
-                    fontSize: "24px",
-                    textTransform: "uppercase ",
-                  }}
-                >
-                  {slot.username}
-                </h5>
+                <h5 className="modal-title">Event Details</h5>
                 <button
                   type="button"
                   className="btn-close"
-                  aria-label="Close"
                   onClick={() => setShowModal(false)}
                 ></button>
               </div>
@@ -226,57 +207,61 @@ const Admin = ({ retrieveSlots, pendingSlots }) => {
                   <tbody>
                     <tr>
                       <td className="fw-bold">Event Title:</td>
-                      <td className="fw-bold">{slot.title}</td>
+                      <td>{slot.title}</td>
+                    </tr>
+                    <tr>
+                      <td className="fw-bold">Venue:</td>
+                      <td>{slot.venue}</td>
                     </tr>
                     <tr>
                       <td className="fw-bold">Date:</td>
-                      <td className="text-muted">
-                        {moment(slot.start).format("D MMM, ddd")}
-                      </td>
-                    </tr>
-                    <tr>
-                      <td className="fw-bold capitalise">Venue:</td>
-                      <td className="text-muted">{slot.venue}</td>
+                      <td>{moment(slot.start).format("MMMM D, YYYY")}</td>
                     </tr>
                     <tr>
                       <td className="fw-bold">Start Time:</td>
-                      <td className="text-muted">
-                        {moment(slot.start).format("HH:mm")}
-                      </td>
+                      <td>{moment(slot.start).format("h:mm A")}</td>
                     </tr>
                     <tr>
                       <td className="fw-bold">End Time:</td>
-                      <td className="text-muted">
-                        {moment(slot.end).format("HH:mm")}
-                      </td>
+                      <td>{moment(slot.end).format("h:mm A")}</td>
                     </tr>
                     <tr>
                       <td className="fw-bold">Responsible Person:</td>
-                      <td className="text-muted">{slot.responsiblePerson}</td>
+                      <td>{slot.responsiblePerson}</td>
                     </tr>
                     <tr>
                       <td className="fw-bold">Contact Number:</td>
-                      <td className="text-muted">{slot.contactNumber}</td>
+                      <td>{slot.contactNumber}</td>
                     </tr>
                     <tr>
                       <td className="fw-bold">Canteen Remarks:</td>
-                      <td className="text-muted">
-                        {slot.canteenRemarks || "No remarks"}
+                      <td>{slot.canteenRemarks || "None"}</td>
+                    </tr>
+                    <tr>
+                      <td className="fw-bold">Requirements:</td>
+                      <td>
+                        {Object.entries(slot.requirements || {})
+                          .filter(([_, value]) => value)
+                          .map(([key]) => {
+                            const formattedKey = key
+                              .replace(/([A-Z])/g, ' $1')
+                              .replace(/^./, str => str.toUpperCase());
+                            return formattedKey;
+                          })
+                          .join(', ') || 'None'}
                       </td>
                     </tr>
                   </tbody>
                 </table>
               </div>
               <div className="modal-footer">
-                <Button
-                  variant="success"
-                  onClick={() => handleApprove(slot._id)}
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={() => setShowModal(false)}
                 >
-                  Approve
-                </Button>
-                <Button variant="danger" onClick={() => handleReject(slot._id)}>
-                  Reject
-                </Button>
+                  Close
+                </button>
               </div>
             </div>
           </div>

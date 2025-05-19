@@ -25,6 +25,11 @@ const CalendarInterface = ({ loginuser }) => {
     responsiblePerson: "",
     contactNumber: "",
     canteenRemarks: "",
+    requirements: {
+      ac: false,
+      soundSystem: false,
+      projector: false
+    }
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -165,6 +170,7 @@ const CalendarInterface = ({ loginuser }) => {
           responsiblePerson: eventInfo.responsiblePerson,
           contactNumber: eventInfo.contactNumber,
           canteenRemarks: eventInfo.canteenRemarks,
+          requirements: eventInfo.requirements
         };
         const updatedEvents = events.map((event) =>
           event === selectEvent ? updatedEvent : event
@@ -180,6 +186,11 @@ const CalendarInterface = ({ loginuser }) => {
           responsiblePerson: eventInfo.responsiblePerson,
           contactNumber: eventInfo.contactNumber,
           canteenRemarks: eventInfo.canteenRemarks,
+          requirements: {
+            ac: eventInfo.requirements.ac,
+            soundSystem: eventInfo.requirements.soundSystem,
+            projector: eventInfo.requirements.projector
+          }
         };
 
         await slotService.createSlot(newEvent);
@@ -197,6 +208,11 @@ const CalendarInterface = ({ loginuser }) => {
         responsiblePerson: "",
         contactNumber: "",
         canteenRemarks: "",
+        requirements: {
+          ac: false,
+          soundSystem: false,
+          projector: false
+        }
       });
 
       // Navigate after everything is done
@@ -309,7 +325,23 @@ const CalendarInterface = ({ loginuser }) => {
     },
   };
   return (
-    <div style={{ height: "700px" }}>
+    <div style={{ 
+      height: "700px",
+      paddingTop: "80px",
+      marginTop: "20px"
+    }}>
+      <h1 style={{ 
+        textAlign: "center", 
+        marginBottom: "30px", 
+        color: "var(--first-color)",
+        fontSize: "clamp(1.5rem, 4vw, 2rem)",
+        fontWeight: "600",
+        fontFamily: "Poppins, sans-serif",
+        padding: "0 1rem",
+        marginTop: "0"
+      }}>
+        Choose a date to book a venue
+      </h1>
       <Calendar
         localizer={localizer}
         components={components}
@@ -396,6 +428,8 @@ const CalendarInterface = ({ loginuser }) => {
                       </option>
                       <option value="Senate Hall">Senate Hall</option>
                       <option value="NTIC Hall">NTIC Hall</option>
+                      <option value="Mini Auditorium">Mini Auditorium</option>
+                      <option value="CIKU Hall">CIKU Hall</option>
                     </select>
                     <label htmlFor="startTime" className="form-label">
                       Start Time:
@@ -477,6 +511,74 @@ const CalendarInterface = ({ loginuser }) => {
                         })
                       }
                     />
+                    
+                    <div className="mt-4">
+                      <label className="form-label fw-bold">Your Requirements:</label>
+                      <div className="d-flex flex-column gap-2">
+                        {eventInfo.venue !== "Multipurpose Hall" && (
+                          <div className="form-check">
+                            <input
+                              className="form-check-input"
+                              type="checkbox"
+                              id="ac"
+                              checked={eventInfo.requirements.ac}
+                              onChange={(e) =>
+                                setEventInfo({
+                                  ...eventInfo,
+                                  requirements: {
+                                    ...eventInfo.requirements,
+                                    ac: e.target.checked,
+                                  },
+                                })
+                              }
+                            />
+                            <label className="form-check-label" htmlFor="ac">
+                              AC
+                            </label>
+                          </div>
+                        )}
+                        <div className="form-check">
+                          <input
+                            className="form-check-input"
+                            type="checkbox"
+                            id="soundSystem"
+                            checked={eventInfo.requirements.soundSystem}
+                            onChange={(e) =>
+                              setEventInfo({
+                                ...eventInfo,
+                                requirements: {
+                                  ...eventInfo.requirements,
+                                  soundSystem: e.target.checked,
+                                },
+                              })
+                            }
+                          />
+                          <label className="form-check-label" htmlFor="soundSystem">
+                            Sound System
+                          </label>
+                        </div>
+                        <div className="form-check">
+                          <input
+                            className="form-check-input"
+                            type="checkbox"
+                            id="projector"
+                            checked={eventInfo.requirements.projector}
+                            onChange={(e) =>
+                              setEventInfo({
+                                ...eventInfo,
+                                requirements: {
+                                  ...eventInfo.requirements,
+                                  projector: e.target.checked,
+                                },
+                              })
+                            }
+                          />
+                          <label className="form-check-label" htmlFor="projector">
+                            Projector
+                          </label>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                   <div className="modal-footer">
                     <button
@@ -563,6 +665,8 @@ const CalendarInterface = ({ loginuser }) => {
                       </option>
                       <option value="Senate Hall">Senate Hall</option>
                       <option value="NTIC Hall">NTIC Hall</option>
+                      <option value="Mini Auditorium">Mini Auditorium</option>
+                      <option value="CIKU Hall">CIKU Hall</option>
                     </select>
                     <label htmlFor="startTime" className="form-label">
                       Start Time:
@@ -737,6 +841,20 @@ const CalendarInterface = ({ loginuser }) => {
                             {selectEvent.canteenRemarks}
                           </td>
                         </tr>
+                        <tr>
+                          <td className="fw-bold">Requirements:</td>
+                          <td className="text-muted">
+                            {Object.entries(selectEvent.requirements || {})
+                              .filter(([_, value]) => value)
+                              .map(([key]) => {
+                                const formattedKey = key
+                                  .replace(/([A-Z])/g, ' $1')
+                                  .replace(/^./, str => str.toUpperCase());
+                                return formattedKey;
+                              })
+                              .join(', ') || 'None'}
+                          </td>
+                        </tr>
                       </tbody>
                     </table>
                   </div>
@@ -823,6 +941,20 @@ const CalendarInterface = ({ loginuser }) => {
                         <td className="fw-bold">Canteen Remarks:</td>
                         <td className="text-muted">
                           {selectEvent.canteenRemarks}
+                        </td>
+                      </tr>
+                      <tr>
+                        <td className="fw-bold">Requirements:</td>
+                        <td className="text-muted">
+                          {Object.entries(selectEvent.requirements || {})
+                            .filter(([_, value]) => value)
+                            .map(([key]) => {
+                              const formattedKey = key
+                                .replace(/([A-Z])/g, ' $1')
+                                .replace(/^./, str => str.toUpperCase());
+                              return formattedKey;
+                            })
+                            .join(', ') || 'None'}
                         </td>
                       </tr>
                     </tbody>

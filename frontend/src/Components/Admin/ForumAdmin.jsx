@@ -24,6 +24,11 @@ const ForumAdmin = ({ retrieveSlots, slots, loginuser }) => {
     responsiblePerson: "",
     contactNumber: "",
     canteenRemarks: "",
+    requirements: {
+      ac: false,
+      soundSystem: false,
+      projector: false
+    }
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -40,6 +45,8 @@ const ForumAdmin = ({ retrieveSlots, slots, loginuser }) => {
       return;
     }
 
+    console.log("Selected slot requirements:", slot.requirements); // Debug log
+
     setSelectedSlot(slot);
     setEventInfo({
       eventTitle: slot.title,
@@ -49,6 +56,11 @@ const ForumAdmin = ({ retrieveSlots, slots, loginuser }) => {
       responsiblePerson: slot.responsiblePerson || "",
       contactNumber: slot.contactNumber || "",
       canteenRemarks: slot.canteenRemarks || "",
+      requirements: {
+        ac: Boolean(slot.requirements?.ac),
+        soundSystem: Boolean(slot.requirements?.soundSystem),
+        projector: Boolean(slot.requirements?.projector)
+      }
     });
     setShowModal(true);
   };
@@ -152,8 +164,10 @@ const ForumAdmin = ({ retrieveSlots, slots, loginuser }) => {
         return;
       }
 
+      console.log("Saving requirements:", eventInfo.requirements); // Debug log
+
       // Create a new slot with updated information
-      await slotService.createSlot({
+      const updatedSlot = {
         username: selectedSlot.username,
         eventTitle: eventInfo.eventTitle,
         venue: eventInfo.venue,
@@ -162,7 +176,16 @@ const ForumAdmin = ({ retrieveSlots, slots, loginuser }) => {
         responsiblePerson: eventInfo.responsiblePerson,
         contactNumber: eventInfo.contactNumber,
         canteenRemarks: eventInfo.canteenRemarks,
-      });
+        requirements: {
+          ac: Boolean(eventInfo.requirements.ac),
+          soundSystem: Boolean(eventInfo.requirements.soundSystem),
+          projector: Boolean(eventInfo.requirements.projector)
+        }
+      };
+
+      console.log("Updated slot:", updatedSlot); // Debug log
+
+      await slotService.createSlot(updatedSlot);
 
       // Delete the old slot
       await slotService.deleteSlot(selectedSlot._id);
@@ -178,6 +201,11 @@ const ForumAdmin = ({ retrieveSlots, slots, loginuser }) => {
         responsiblePerson: "",
         contactNumber: "",
         canteenRemarks: "",
+        requirements: {
+          ac: false,
+          soundSystem: false,
+          projector: false
+        }
       });
     } catch (error) {
       console.error(error);
@@ -197,7 +225,8 @@ const ForumAdmin = ({ retrieveSlots, slots, loginuser }) => {
               <th scope="col">Forum</th>
               <th scope="col">Title</th>
               <th scope="col">Status</th>
-              <th scope="col">Remarks</th>
+              <th scope="col" style={{ width: "180px" }}>Remarks</th>
+              <th scope="col" style={{ width: "180px" }}>Time Elapsed</th>
               <th scope="col">Actions</th>
               {loginuser === "admin" && <th scope="col">Download</th>}
             </tr>
@@ -223,18 +252,23 @@ const ForumAdmin = ({ retrieveSlots, slots, loginuser }) => {
                     <Button variant="danger">Rejected</Button>
                   )}
                 </td>
-                <td>
+                <td style={{ width: "180px" }}>
                   <div>
-                    Applied On:{" "}
-                    {moment(slot.bookingTime).format("MMM D, YYYY [at] h:mm A")}
+                    Applied: {moment(slot.bookingTime).format("MMM D, h:mm A")}
                   </div>
                   {slot.status === "approved" && slot.approvalTime && (
                     <div>
-                      Approved On:{" "}
-                      {moment(slot.approvalTime).format(
-                        "MMM D, YYYY [at] h:mm A"
-                      )}
+                      Approved: {moment(slot.approvalTime).format("MMM D, h:mm A")}
                     </div>
+                  )}
+                </td>
+                <td style={{ width: "180px" }}>
+                  {slot.status === "approved" && slot.approvalTime ? (
+                    moment.duration(moment(slot.approvalTime).diff(moment(slot.bookingTime))).humanize()
+                  ) : slot.status === "pending" ? (
+                    moment.duration(moment().diff(moment(slot.bookingTime))).humanize() + " (pending)"
+                  ) : (
+                    "N/A"
                   )}
                 </td>
                 <td>
@@ -299,6 +333,11 @@ const ForumAdmin = ({ retrieveSlots, slots, loginuser }) => {
                       responsiblePerson: "",
                       contactNumber: "",
                       canteenRemarks: "",
+                      requirements: {
+                        ac: false,
+                        soundSystem: false,
+                        projector: false
+                      }
                     });
                   }}
                 ></button>
@@ -327,9 +366,17 @@ const ForumAdmin = ({ retrieveSlots, slots, loginuser }) => {
                   className="form-select"
                   id="venue"
                   value={eventInfo.venue}
-                  onChange={(e) =>
-                    setEventInfo({ ...eventInfo, venue: e.target.value })
-                  }
+                  onChange={(e) => {
+                    const newVenue = e.target.value;
+                    setEventInfo({
+                      ...eventInfo,
+                      venue: newVenue,
+                      requirements: {
+                        ...eventInfo.requirements,
+                        ac: newVenue === "Multipurpose Hall" ? false : eventInfo.requirements.ac
+                      }
+                    });
+                  }}
                   required
                 >
                   <option value="">Select Venue</option>
@@ -420,6 +467,74 @@ const ForumAdmin = ({ retrieveSlots, slots, loginuser }) => {
                     })
                   }
                 />
+
+                <div className="mt-4">
+                  <label className="form-label fw-bold">Requirements:</label>
+                  <div className="d-flex flex-column gap-2">
+                    {eventInfo.venue !== "Multipurpose Hall" && (
+                      <div className="form-check">
+                        <input
+                          className="form-check-input"
+                          type="checkbox"
+                          id="ac"
+                          checked={eventInfo.requirements.ac}
+                          onChange={(e) =>
+                            setEventInfo({
+                              ...eventInfo,
+                              requirements: {
+                                ...eventInfo.requirements,
+                                ac: e.target.checked,
+                              },
+                            })
+                          }
+                        />
+                        <label className="form-check-label" htmlFor="ac">
+                          AC
+                        </label>
+                      </div>
+                    )}
+                    <div className="form-check">
+                      <input
+                        className="form-check-input"
+                        type="checkbox"
+                        id="soundSystem"
+                        checked={eventInfo.requirements.soundSystem}
+                        onChange={(e) =>
+                          setEventInfo({
+                            ...eventInfo,
+                            requirements: {
+                              ...eventInfo.requirements,
+                              soundSystem: e.target.checked,
+                            },
+                          })
+                        }
+                      />
+                      <label className="form-check-label" htmlFor="soundSystem">
+                        Sound System
+                      </label>
+                    </div>
+                    <div className="form-check">
+                      <input
+                        className="form-check-input"
+                        type="checkbox"
+                        id="projector"
+                        checked={eventInfo.requirements.projector}
+                        onChange={(e) =>
+                          setEventInfo({
+                            ...eventInfo,
+                            requirements: {
+                              ...eventInfo.requirements,
+                              projector: e.target.checked,
+                            },
+                          })
+                        }
+                      />
+                      <label className="form-check-label" htmlFor="projector">
+                        Projector
+                      </label>
+                    </div>
+                  </div>
+                </div>
               </div>
               <div className="modal-footer">
                 <button
