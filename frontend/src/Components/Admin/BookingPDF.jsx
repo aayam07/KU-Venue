@@ -107,7 +107,7 @@ const BookingPDF = ({ slot }) => (
     <Page size="A4" style={styles.page}>
       <View style={styles.header}>
         <Text style={styles.title}>Venue Booking Confirmation</Text>
-        <Text style={styles.subtitle}>KU Venue Booking System</Text>
+        <Text style={styles.subtitle}>KU Hall Booking System</Text>
       </View>
 
       <View style={styles.section}>
@@ -206,7 +206,7 @@ const BookingPDF = ({ slot }) => (
       <Page size="A4" style={styles.canteenPage}>
         <View style={styles.canteenHeader}>
           <Text style={styles.canteenTitle}>Canteen Instructions</Text>
-          <Text style={styles.canteenSubtitle}>KU Venue Booking System</Text>
+          <Text style={styles.canteenSubtitle}>KU Hall Booking System</Text>
         </View>
 
         <View style={styles.canteenSection}>

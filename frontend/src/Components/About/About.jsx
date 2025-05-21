@@ -247,7 +247,7 @@ function About() {
                 height={30}
                 style={{ marginLeft: "-7px" }}
               />
-              <span className="nav_logo-name">KU Venue</span>
+              <span className="nav_logo-name">KU Hall Booking</span>
             </Link>
             <div className="nav_list">
               <Link
@@ -285,7 +285,7 @@ function About() {
                 className="nav_link"
                 onClick={() => setActiveLink(4)}
               >
-                <MdBusinessCenter />
+                <MdEventSeat />
                 <span className="nav_name">Senate Hall</span>
               </Link>
               <Link
@@ -293,7 +293,7 @@ function About() {
                 className="nav_link"
                 onClick={() => setActiveLink(5)}
               >
-                <MdAudiotrack />
+                <MdEventSeat />
                 <span className="nav_name">Mini Auditorium</span>
               </Link>
               <Link
@@ -301,7 +301,7 @@ function About() {
                 className="nav_link"
                 onClick={() => setActiveLink(6)}
               >
-                <MdBusinessCenter />
+                <MdEventSeat />
                 <span className="nav_name">CIKU Hall</span>
               </Link>
               <Link
@@ -309,7 +309,7 @@ function About() {
                 className="nav_link"
                 onClick={() => setActiveLink(7)}
               >
-                <MdComputer />
+                <MdEventSeat />
                 <span className="nav_name">NTIC</span>
               </Link>
               <Link
@@ -317,7 +317,7 @@ function About() {
                 className="nav_link"
                 onClick={() => setActiveLink(8)}
               >
-                <MdAudiotrack />
+                <MdEventSeat />
                 <span className="nav_name">CV Raman</span>
               </Link>
             </div>

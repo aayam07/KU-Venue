@@ -54,8 +54,8 @@ function SignUp({ authenticated, setAuthenticated, setLoginUser }) {
   return (
     <div className="signup-container">
       <div className="wrapper">
-        <img src={logo} alt="logo" width={100} height={100} />
-        <h1>KU Venue</h1>
+      <img src={logo} alt="logo" width={100} height={100} className="signup-logo" />
+        <h1>KU Hall Booking</h1>
         <form onSubmit={handleSubmit}>
           <input
             type="username"

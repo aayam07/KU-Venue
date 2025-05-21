@@ -18,7 +18,7 @@ function App() {
       {loading ? (
         <div class="App">
           <img src={nav_log} alt="" />
-          <p className="text-warning text-white">KU Venue</p>
+          <p className="text-warning text-white">KU Hall Booking</p>
           <BarLoader
             color={"#FFFFFF"}
             loading={loading}

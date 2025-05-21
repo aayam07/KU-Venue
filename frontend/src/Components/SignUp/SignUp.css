@@ -5,6 +5,11 @@
   font-family: "Poppins", sans-serif;
 }
 
+.signup-logo {
+  display: block;
+  margin: 0 auto 20px auto; /* Adds 20px space below the logo */
+}
+
 .signup-container {
   height: 84vh;
   display: flex;

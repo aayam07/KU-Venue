@@ -194,7 +194,7 @@ const CalendarInterface = ({ loginuser }) => {
         };
 
         await slotService.createSlot(newEvent);
-        toast.success("Event Request has been successfully sent to Principal!");
+        toast.success("Booking Request has been successfully sent to the admin!");
         await retrieveSlots();
       }
 

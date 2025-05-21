@@ -14,7 +14,7 @@ export default function Welcome({ events }) {
       <div className="welcome-container">
         <h1 className="welcome-title">
           Welcome to <br />
-          <span className="highlight">KU Venue Booking System</span>
+          <span className="highlight">KU Hall Booking System</span>
         </h1>
 
         <div className="content-section">
@@ -48,10 +48,11 @@ export default function Welcome({ events }) {
             <h2>Instructions</h2>
             <ol>
               <li>This website provides information on events that have already been scheduled, including their dates and time.</li>
-              <li>Users are limited to viewing the scheduled events and are unable to make bookings.</li>
-              <li>Only student coordinators and staff members are authorized to make bookings.</li>
-              <li>Bookings are directed to the admin page for approval or rejection.</li>
-              <li>Events that are approved are exclusively showcased on the calendar interface, while those that are rejected are indicated as such on the forums page.</li>
+              <li>To make a booking, you need to be logged in. Then, go to the calendar interface and click on the date you want to book.</li>
+              <li>Students are limited to viewing the scheduled events and are unable to make bookings.</li>
+              <li>Only departments, authorized personnels, and staff members are authorized to make bookings.</li>
+              <li>Bookings are directed to the admin for approval or rejection.</li>
+              <li>Events that are approved are exclusively showcased on the calendar interface, while those that are rejected are indicated as such on the dashboard page.</li>
             </ol>
           </div>
         </div>

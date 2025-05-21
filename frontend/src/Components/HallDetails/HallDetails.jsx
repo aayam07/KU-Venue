@@ -138,6 +138,31 @@ const HallDetails = () => {
 
   return (
     <div className="hall-details-container">
+      {/* Carousel for hall images */}
+      <div className="hall-carousel" style={{ marginBottom: '2rem', width: '100%' }}>
+        <div id="hallImagesCarousel" className="carousel slide" data-bs-ride="carousel">
+          <div className="carousel-inner">
+            <div className="carousel-item active">
+              <img src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80" className="d-block w-100" alt="Hall 1" style={{ maxHeight: '300px', objectFit: 'cover' }} />
+            </div>
+            <div className="carousel-item">
+              <img src="https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=crop&w=800&q=80" className="d-block w-100" alt="Hall 2" style={{ maxHeight: '300px', objectFit: 'cover' }} />
+            </div>
+            <div className="carousel-item">
+              <img src="https://images.unsplash.com/photo-1519125323398-675f0ddb6308?auto=format&fit=crop&w=800&q=80" className="d-block w-100" alt="Hall 3" style={{ maxHeight: '300px', objectFit: 'cover' }} />
+            </div>
+          </div>
+          <button className="carousel-control-prev" type="button" data-bs-target="#hallImagesCarousel" data-bs-slide="prev">
+            <span className="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span className="visually-hidden">Previous</span>
+          </button>
+          <button className="carousel-control-next" type="button" data-bs-target="#hallImagesCarousel" data-bs-slide="next">
+            <span className="carousel-control-next-icon" aria-hidden="true"></span>
+            <span className="visually-hidden">Next</span>
+          </button>
+        </div>
+      </div>
+      {/* End Carousel */}
       <div className="hall-info-section">
         <h2>{hallInfo.name}</h2>
         <div className="hall-info-box">
