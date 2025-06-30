@@ -176,3 +176,41 @@ header {
     padding-left: calc(var(--nav-width) + 188px);
   }
 }
+
+@media (max-width: 768px) {
+  .header {
+    height: 56px;
+    min-height: 56px;
+    padding: 0 0.5rem;
+  }
+  body {
+    padding-top: 56px !important;
+  }
+  .l-navbar {
+    width: 220px;
+    left: -220px;
+    padding: 0.5rem 0.5rem 0 0;
+    transition: left 0.3s;
+  }
+  .l-navbar.show {
+    left: 0;
+  }
+  .nav_logo-name, .nav_name {
+    display: inline;
+    font-size: 1rem;
+    margin-left: 10px;
+    color: var(--white-color);
+    white-space: normal;
+  }
+  .nav_link {
+    grid-template-columns: max-content 1fr;
+    padding: 0.75rem 0 0.75rem 1.2rem;
+    font-size: 1rem;
+  }
+  .nav_logo img {
+    margin-left: 0;
+  }
+  .nav_list {
+    margin-top: 1rem;
+  }
+}

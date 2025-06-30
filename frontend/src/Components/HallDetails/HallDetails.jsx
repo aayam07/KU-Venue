@@ -5,58 +5,82 @@ import slotService from "../../Services/service";
 const hallData = {
   multipurpose: {
     name: "Multipurpose Hall",
-    buildingNumber: "B-203",
-    capacity: 100,
-    acAvailable: true,
+    buildingNumber: "N/A",
+    capacity: 1000,
+    acAvailable: false,
     projectorAvailable: false,
-    description: "Versatile space suitable for various events and activities.",
-    image: "https://example.com/multipurpose.jpg",
+    description: "Versatile space suitable for various events and activities with huge gatherings",
+    image: [
+      "/images/halls/multipurpose1.JPG",
+      "/images/halls/multipurpose2.JPG",
+      "/images/halls/multipurpose3.JPG",
+    ],
   },
   senate: {
     name: "Senate Hall",
-    buildingNumber: "C-305",
-    capacity: 50,
+    buildingNumber: "N/A",
+    capacity: 40,
     acAvailable: true,
     projectorAvailable: true,
     description: "Elegant hall perfect for formal meetings and presentations.",
-    image: "https://example.com/senate.jpg",
+    image: [
+      "/images/halls/senete1.JPG",
+      "/images/halls/senete2.jpg",
+      "/images/halls/senete3.JPG",
+    ],
   },
   "mini-auditorium": {
     name: "Mini Auditorium",
-    buildingNumber: "D-102",
-    capacity: 150,
+    buildingNumber: "N/A",
+    capacity: 30,
     acAvailable: true,
     projectorAvailable: true,
     description: "Compact auditorium with modern audio-visual facilities.",
-    image: "https://example.com/mini-auditorium.jpg",
+    image: [
+      "/images/halls/miniaudi1.JPG",
+      "/images/halls/miniaudi2.JPG",
+      "/images/halls/miniaudi3.JPG",
+    ],
   },
   ciku: {
     name: "CIKU Hall",
-    buildingNumber: "E-201",
+    buildingNumber: "10",
     capacity: 80,
     acAvailable: true,
     projectorAvailable: true,
-    description: "Modern hall with advanced technical facilities.",
-    image: "https://example.com/ciku.jpg",
+    description: "Modern hall suitable for presentations or even classes.",
+    image: [
+      "/images/halls/cikuhall1.jpg",
+      "/images/halls/cikuhall2.JPG",
+      "/images/halls/cikuhall2.JPG",
+    ],
   },
   ntic: {
     name: "NTIC",
-    buildingNumber: "F-301",
-    capacity: 120,
+    buildingNumber: "N/A",
+    capacity: 100,
     acAvailable: true,
-    projectorAvailable: true,
-    description: "Technical hall with state-of-the-art equipment.",
-    image: "https://example.com/ntic.jpg",
+    projectorAvailable: false,
+    description: "Suitable for small events or gatherings.",
+    image: [
+      "/images/halls/ntic1.jpg",
+      "/images/halls/ntic2.jpg",
+      "/images/halls/ntic3.jpg",
+    ],
   },
   "cv-raman": {
     name: "CV Raman",
-    buildingNumber: "A-101",
-    capacity: 200,
+    buildingNumber: "N/A",
+    capacity: 275,
     acAvailable: true,
     projectorAvailable: true,
     description:
       "A state-of-the-art auditorium equipped with modern audio-visual facilities.",
-    image: "https://example.com/cv-raman.jpg",
+      image: [
+        "/images/halls/cvraman1.jpg",
+        "/images/halls/cvraman2.JPG",
+        "/images/halls/cvraman3.jpg",
+      ],
   },
 };
 
@@ -139,29 +163,33 @@ const HallDetails = () => {
   return (
     <div className="hall-details-container">
       {/* Carousel for hall images */}
-      <div className="hall-carousel" style={{ marginBottom: '2rem', width: '100%' }}>
-        <div id="hallImagesCarousel" className="carousel slide" data-bs-ride="carousel">
-          <div className="carousel-inner">
-            <div className="carousel-item active">
-              <img src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80" className="d-block w-100" alt="Hall 1" style={{ maxHeight: '300px', objectFit: 'cover' }} />
-            </div>
-            <div className="carousel-item">
-              <img src="https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=crop&w=800&q=80" className="d-block w-100" alt="Hall 2" style={{ maxHeight: '300px', objectFit: 'cover' }} />
-            </div>
-            <div className="carousel-item">
-              <img src="https://images.unsplash.com/photo-1519125323398-675f0ddb6308?auto=format&fit=crop&w=800&q=80" className="d-block w-100" alt="Hall 3" style={{ maxHeight: '300px', objectFit: 'cover' }} />
-            </div>
-          </div>
-          <button className="carousel-control-prev" type="button" data-bs-target="#hallImagesCarousel" data-bs-slide="prev">
-            <span className="carousel-control-prev-icon" aria-hidden="true"></span>
-            <span className="visually-hidden">Previous</span>
-          </button>
-          <button className="carousel-control-next" type="button" data-bs-target="#hallImagesCarousel" data-bs-slide="next">
-            <span className="carousel-control-next-icon" aria-hidden="true"></span>
-            <span className="visually-hidden">Next</span>
-          </button>
+      {/* Carousel for hall images */}
+<div className="hall-carousel" style={{ marginBottom: '2rem', width: '100%' }}>
+  <div id="hallImagesCarousel" className="carousel slide" data-bs-ride="carousel">
+    <div className="carousel-inner">
+      {(Array.isArray(hallInfo.image) ? hallInfo.image : [hallInfo.image]).map((src, index) => (
+        <div key={index} className={`carousel-item ${index === 0 ? "active" : ""}`}>
+          <img
+            src={src}
+            className="d-block w-100"
+            alt={`Hall ${index + 1}`}
+            style={{ maxHeight: "300px", objectFit: "cover" }}
+          />
         </div>
-      </div>
+      ))}
+    </div>
+
+    <button className="carousel-control-prev" type="button" data-bs-target="#hallImagesCarousel" data-bs-slide="prev">
+      <span className="carousel-control-prev-icon" aria-hidden="true"></span>
+      <span className="visually-hidden">Previous</span>
+    </button>
+    <button className="carousel-control-next" type="button" data-bs-target="#hallImagesCarousel" data-bs-slide="next">
+      <span className="carousel-control-next-icon" aria-hidden="true"></span>
+      <span className="visually-hidden">Next</span>
+    </button>
+  </div>
+</div>
+
       {/* End Carousel */}
       <div className="hall-info-section">
         <h2>{hallInfo.name}</h2>
